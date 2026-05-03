@@ -1,267 +1,161 @@
-# VSD FPGA Internship – RTL Design and Synthesis
+# VSD FPGA Internship – RTL Design, Simulation and Synthesis
 
-This repository contains the documentation and lab work performed as part of the VSD FPGA Internship Screening Program. It includes RTL design, simulation using Iverilog, waveform analysis using GTKWave, and synthesis using Yosys with Sky130 standard cell libraries.
+<p align="center">
+  <b>End-to-End Digital Design Flow</b><br>
+  RTL → Simulation → Synthesis → Netlist Verification
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/HDL-Verilog-blue">
+  <img src="https://img.shields.io/badge/Simulator-Iverilog-green">
+  <img src="https://img.shields.io/badge/Waveform-GTKWave-orange">
+  <img src="https://img.shields.io/badge/Synthesis-Yosys-red">
+  <img src="https://img.shields.io/badge/Library-Sky130-lightgrey">
+</p>
 
 ---
 
-## Module 1: Introduction to Verilog RTL Design and Simulation
+## Overview
 
-### Objective
+This repository presents the complete implementation of RTL design and synthesis flow as part of the **VSD FPGA Internship Screening Program**.
 
-To understand the fundamentals of Verilog design, simulation, and testbench methodology.
+It demonstrates how a behavioral Verilog design is:
 
-### Theory
+* Simulated and verified
+* Converted into gate-level representation
+* Optimized using standard cell libraries
+* Validated post-synthesis
 
-#### Simulator
+---
 
-RTL designs are verified using simulation. The simulator checks whether the design meets the required specifications. Iverilog is used as the simulator in this workflow.
+## Complete Design Flow
 
-#### Design
+```
+RTL Design + Testbench
+        │
+        ▼
+     Iverilog (Simulation)
+        │
+        ▼
+     VCD Output File
+        │
+        ▼
+     GTKWave (Waveform)
+        │
+        ▼
+     Verified RTL Design
+        │
+        ▼
+     Yosys (Synthesis)
+        │
+        ▼
+  Gate-Level Netlist
+        │
+        ▼
+  Netlist Verification
+```
 
-Design refers to the Verilog code that implements the intended functionality of the system.
+---
 
-#### Testbench
+## Toolchain
 
-A testbench applies input stimulus (test vectors) to the design and verifies correctness of the output.
+| Stage              | Tool          |
+| ------------------ | ------------- |
+| Design             | Verilog       |
+| Simulation         | Iverilog      |
+| Debugging          | GTKWave       |
+| Synthesis          | Yosys         |
+| Technology Mapping | Sky130 (.lib) |
 
-#### Working of Simulator
+---
 
-The simulator monitors input changes and evaluates outputs accordingly:
+# Module 1: RTL Design and Simulation
 
-* Output updates when inputs change
-* Output remains constant when inputs remain unchanged
+## Objective
+
+To design digital logic using Verilog and verify functionality using simulation.
 
 ---
 
 ## Simulation Flow
 
-* Design and Testbench are given as input to the simulator
-* Simulator generates output in the form of a VCD file
-* GTKWave is used to visualize waveforms
+```
+Design + Testbench → Iverilog → VCD → GTKWave
+```
 
 ---
 
-## Labs using Iverilog and GTKWave
-
-### Repository Setup
-
-Clone the required repository using:
+## Setup and Execution
 
 ```bash
 git clone https://github.com/vsdip/vsd-rtl.git
-```
+cd sky130RTLDesignAndSynthesisWorkshop/verilog_files
 
-This creates a directory:
-
-```
-sky130RTLDesignAndSynthesisWorkshop
-```
-
----
-
-### Directory Structure
-
-* `lib/` → Contains Sky130 standard cell library
-* `my_lib/` → Contains Verilog models
-* `verilog_files/` → Contains design and testbench files
-
----
-
-### Running Simulation
-
-```bash
 iverilog good_mux.v tb_good_mux.v
 ./a.out
 gtkwave tb_good_mux.vcd
 ```
 
-If any tool is missing:
+---
 
-```bash
-sudo apt install iverilog
-sudo apt install gtkwave
+## Key Observations
+
+* Output follows input stimulus
+* Stable signals when no input change
+* Waveforms confirm expected behavior
+
+---
+
+# Module 1: Logic Synthesis using Yosys
+
+## Objective
+
+Convert RTL into optimized gate-level netlist using standard cells.
+
+---
+
+## Synthesis Flow
+
+```
+RTL + Standard Cell Library → Yosys → Netlist
 ```
 
 ---
 
-### Viewing Design and Testbench
-
-```bash
-gvim good_mux.v -o tb_good_mux.v
-```
-
----
-
-## Introduction to Yosys and Logic Synthesis
-
-### Objective
-
-To understand logic synthesis and conversion of RTL to gate-level netlist.
-
----
-
-### Theory
-
-#### Synthesizer
-
-A synthesizer converts RTL code into a gate-level netlist. Yosys is used in this flow.
-
-#### RTL Design
-
-RTL represents system behavior using Verilog HDL.
-
-#### Synthesis
-
-* Converts RTL to logic gates
-* Maps design using standard cell library
-* Produces a netlist file
-
----
-
-### What is .lib
-
-* A `.lib` file contains standard cells like AND, OR, NOT
-* Each gate has multiple variants:
-
-  * Slow
-  * Medium
-  * Fast
-
----
-
-### Gate Variants and Performance
-
-* Faster cells → lower delay, higher power and area
-* Slower cells → higher delay, lower power and area
-* Trade-off exists between performance, power, and area
-
----
-
-### Need for Slow Cells
-
-Slow cells are required to avoid hold time violations and ensure timing correctness.
-
----
-
-### Cell Selection
-
-The synthesizer selects cells based on constraints:
-
-* More fast cells → better performance but higher power
-* More slow cells → lower power but reduced speed
-
----
-
-## Labs using Yosys and Sky130 PDK
-
-### Launch Yosys
+## Commands
 
 ```bash
 yosys
-```
-
-### Read Library
-
-```bash
 read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
-```
-
-### Read Design
-
-```bash
 read_verilog good_mux.v
-```
-
-### Synthesize Design
-
-```bash
 synth -top good_mux
-```
-
-### Map to Standard Cells
-
-```bash
 abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
-```
-
----
-
-### Generate Netlist
-
-```bash
 write_verilog good_mux_netlist.v
 ```
 
 ---
 
-### View Netlist
+## Verification Strategy
 
-```bash
-gvim good_mux_netlist.v
-```
-
----
-
-### Simplified Netlist
-
-```bash
-write_verilog -noattr good_mux_netlist.v
-gvim good_mux_netlist.v
-```
+* Same testbench reused
+* Compare RTL vs synthesized output
+* Matching waveforms confirm correctness
 
 ---
 
-### Visual Representation
-
-```bash
-show
-```
+# Module 2: Timing Libraries, Synthesis Styles and Optimization
 
 ---
 
-## Verification of Synthesis
+## Timing Library (.lib)
 
-* Same testbench used for RTL simulation can be reused
-* Compare RTL and synthesized netlist outputs
-* Outputs should match for correct synthesis
+### Purpose
 
----
-
-## Conclusion
-
-* Understood RTL design and simulation using Iverilog
-* Visualized waveforms using GTKWave
-* Learned synthesis using Yosys
-* Generated and analyzed gate-level netlist
-* Understood trade-offs in cell selection and timing
+The `.lib` file defines how logic cells behave in real hardware.
 
 ---
 
-![Description](images/1.png)
-![Description](images/2.png)
-![Description](images/3.png)
-
----
-
-
-
-
-
-
-
-## Module 2 – Timing Libraries, Hierarchical vs Flat Synthesis and Efficient Flop Coding Styles
-
----
-
-## Introduction to Timing Libraries (.lib)
-
-### Objective
-
-To understand timing libraries, PVT variations, and how synthesis tools use `.lib` files.
-
----
-
-### Opening the Sky130 Library
+### Open Library
 
 ```bash
 gvim sky130_fd_sc_hd__tt_025C_1v80.lib
@@ -269,139 +163,97 @@ gvim sky130_fd_sc_hd__tt_025C_1v80.lib
 
 ---
 
-### Understanding .lib File
+## PVT Variations
 
-A `.lib` file contains:
+| Parameter   | Description                            |
+| ----------- | -------------------------------------- |
+| Process     | Manufacturing variation (tt = typical) |
+| Voltage     | Supply voltage                         |
+| Temperature | Operating temperature                  |
 
-* Standard cells (AND, OR, NAND, etc.)
-* Timing information
-* Power information
-* Area details
-* Technology parameters
+Example:
 
----
-
-### PVT Variations
-
-Digital circuits are affected by:
-
-* **Process (P)**
-  Variations in fabrication (device size, doping)
-  Example: `tt` (typical process)
-
-* **Voltage (V)**
-  Supply voltage variations affect speed and power
-
-* **Temperature (T)**
-  Higher temperature increases delay
-
----
-
-### Example Library Name
-
-```bash
+```
 sky130_fd_sc_hd__tt_025C_1v80.lib
 ```
 
-Meaning:
-
-* `tt` → typical process
-* `025C` → 25°C temperature
-* `1v80` → 1.8V supply
-
 ---
 
-### Cell Information in .lib
+## Library Contents
 
-Each cell includes:
-
-* Pin details
-* Timing delay
+* Logic gates (AND, OR, NOT)
+* Timing characteristics
 * Power consumption
-* Area
+* Area information
 
 ---
 
-### Cell Flavours
+## Cell Variants and Trade-offs
 
-Each logic gate has multiple versions:
-
-* Fast cells → Low delay, high power
-* Slow cells → High delay, low power
-* Medium cells → Balanced
-
----
-
-### Observations
-
-* Multiple implementations of same logic exist
-* Trade-off between speed, power, and area
-* Synthesizer selects optimal cells based on constraints
+| Cell Type | Delay    | Power    | Area     |
+| --------- | -------- | -------- | -------- |
+| Fast      | Low      | High     | High     |
+| Slow      | High     | Low      | Low      |
+| Medium    | Balanced | Balanced | Balanced |
 
 ---
 
-## Hierarchical vs Flat Synthesis
+## Timing Constraints
 
-### Hierarchical Synthesis
+### Setup Constraint
 
-* Each module synthesized separately
-* Maintains design hierarchy
+```
+Tclk > Tcq + Tcomb + Tsetup
+```
 
-#### Advantages:
+### Hold Constraint
 
+```
+Thold < Tcq + Tcomb
+```
+
+---
+
+## Importance
+
+* Fast cells → Improve performance
+* Slow cells → Prevent hold violations
+* Balanced selection → Optimal design
+
+---
+
+# Hierarchical vs Flat Synthesis
+
+## Hierarchical Synthesis
+
+* Module-wise processing
 * Faster compilation
 * Easier debugging
-* Reusable modules
-
-#### Disadvantages:
-
-* Less optimization across modules
+* Limited optimization
 
 ---
 
-### Flat Synthesis
+## Flat Synthesis
 
-* Entire design treated as one block
-* Hierarchy removed
-
-#### Advantages:
-
+* Entire design flattened
 * Better optimization
-* Reduced area and delay
-
-#### Disadvantages:
-
-* Longer runtime
-* Harder to debug
+* Higher runtime
 
 ---
 
-### Comparison
+## Comparison
 
-| Feature      | Hierarchical | Flat      |
-| ------------ | ------------ | --------- |
-| Speed        | Faster       | Slower    |
-| Optimization | Limited      | High      |
-| Debugging    | Easy         | Difficult |
-| Reusability  | High         | Low       |
-
----
-
-## Flop Coding Styles
-
-### Importance
-
-Flops (Flip-Flops) are critical for:
-
-* Data storage
-* Synchronization
-* Timing control
+| Feature      | Hierarchical | Flat    |
+| ------------ | ------------ | ------- |
+| Speed        | Fast         | Slow    |
+| Optimization | Limited      | High    |
+| Debugging    | Easy         | Complex |
 
 ---
 
-### Efficient Flop Coding
+# Efficient Flop Coding Styles
 
-#### Correct Style
+## Correct Implementation
 
 ```verilog
 module dff (input clk, input rst, input d, output reg q);
@@ -417,7 +269,7 @@ endmodule
 
 ---
 
-### Avoid Latches (Bad Coding Style)
+## Incorrect Implementation
 
 ```verilog
 always @(clk)
@@ -429,80 +281,30 @@ end
 
 ---
 
-### Blocking vs Non-Blocking
+## Best Practices
 
-* Use `<=` (non-blocking) for sequential logic
-* Use `=` (blocking) for combinational logic
-
----
-
-### Good vs Bad Practices
-
-| Good Practice         | Bad Practice        |
-| --------------------- | ------------------- |
-| Use posedge clk       | Use level-sensitive |
-| Use non-blocking      | Use blocking        |
-| Proper reset handling | Missing reset       |
+* Use edge-triggered logic
+* Use non-blocking assignments
+* Always include reset logic
 
 ---
 
-## Flop Synthesis and Simulation
+# Optimization Techniques
 
-### Simulation using Iverilog
-
-```bash
-iverilog dff.v tb_dff.v
-./a.out
-gtkwave tb_dff.vcd
-```
+* Constant propagation
+* Dead code removal
+* Logic simplification
+* Resource sharing
 
 ---
 
-### Observations
-
-* Output changes on clock edge
-* Reset initializes output
-* Timing behavior verified using GTKWave
-
----
-
-## Interesting Optimizations
-
-### Optimization Goals
-
-* Reduce area
-* Reduce power
-* Improve speed
-
----
-
-### Common Optimizations
-
-#### Constant Propagation
-
-* Removes redundant logic
-
-#### Dead Code Elimination
-
-* Removes unused signals
-
-#### Logic Simplification
-
-* Reduces gate count
-
-#### Resource Sharing
-
-* Reuses hardware blocks
-
----
-
-### Example Optimization
+## Example
 
 ```verilog
 assign y = sel ? a : a;
 ```
 
-Simplified to:
+Optimized to:
 
 ```verilog
 assign y = a;
@@ -510,29 +312,48 @@ assign y = a;
 
 ---
 
-## Key Takeaways
+# Shapshots
 
-* `.lib` defines timing, power, and cell data
-* PVT variations affect circuit performance
-* Hierarchical vs Flat synthesis has trade-offs
-* Proper flop coding is essential for correct design
-* Optimization improves efficiency
 
----
+![1](images/1.png)
 
-## Conclusion
+![2](images/2.png)
 
-* Learned structure and importance of timing libraries
-* Understood PVT variations and their impact
-* Compared hierarchical and flat synthesis
-* Studied efficient flop coding styles
-* Explored synthesis optimizations
+![3](images/3.png)
 
----
+![4](images/4.png)
 
+![5](images/5.png)
+
+![6](images/6.png)
+
+![7](images/7.png)
 
 ---
 
-## Author
+# Repository Structure
+
+```
+.
+├── verilog_files/
+├── lib/
+├── my_lib/
+├── images/
+└── README.md
+```
+
+---
+
+# Key Learnings
+
+* RTL to Gate-level transformation
+* Importance of timing libraries
+* Trade-offs in speed, power, and area
+* Correct coding practices for synthesis
+* Differences between synthesis strategies
+
+---
+
+# Author
 
 Amritanshu Kumar Shandilya
